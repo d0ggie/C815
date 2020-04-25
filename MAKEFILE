@@ -1,0 +1,67 @@
+.RECIPEPREFIX := >
+.DEFAULT_GOAL := ALL
+.SUFFIXES:
+.SECONDARY:
+
+CC      := gcc
+LN      := ln
+MD	    := mkdir
+RM      := rm -f
+
+ CFLAGS := -std=gnu18 -O2
+CCFLAGS := -Wall -Wextra -Werror=implicit-function-declaration -Winvalid-pch
+SOURCES := \
+C815.C \
+C815_GFX.C \
+C815_SFX.C \
+C815_FNT.C \
+C815_BMP.C \
+C815_WAV.C
+PHEADER := \
+C815_STD.H
+PSUFFIX := gch
+OBJECTS := $(SOURCES:.C=.OBJ)
+DEPENDS := $(SOURCES:.C=.DEP) $(PHEADER:.H=.DEP)
+STAGING := STAGE
+EXENAME := C815
+
+$(foreach \
+__OBJECT__, OBJECTS DEPENDS, $(eval \
+$$(__OBJECT__) := $$(addprefix $(STAGING)/,$$($$(__OBJECT__)))))
+
+ifndef \
+__DEPEND
+define \
+__DEPEND
+$(eval \
+__depend := $$(strip $(1))
+# $$(info INCLUDE >> $$(__depend))
+-include $$(__depend)
+# $$(info INCLUDE <<)
+)
+endef
+endif
+
+$(foreach \
+__DEPEND__,\
+$(DEPENDS),$(eval $$(call \
+__DEPEND, $$(__DEPEND__))))
+
+$(STAGING):
+>@$(MD) $(STAGING)
+
+# Note: Unless one has ``MSYS=winsymlinks:nativestrict'' this will fail.
+$(STAGING)/%.H.$(PSUFFIX): $(STAGING)/%.PCH | $(STAGING)
+>@if [[ ! -h $@ ]]; then pushd $(STAGING); $(LN) -sT $(<F) $(@F); popd; fi
+
+$(STAGING)/%.PCH: %.H | $(STAGING)
+> $(CC) $(CCFLAGS) $(CFLAGS) $(CPPFLAGS) -c -xc-header $< -o $@ -MT $@ -MF $(@:.PCH=.DEP) -MD
+
+$(STAGING)/%.OBJ: %.C | $(STAGING) $(STAGING)/$(PHEADER).$(PSUFFIX)
+> $(CC) $(CCFLAGS) $(CFLAGS) $(CPPFLAGS) -I$(STAGING) -c -xc $< -o $@ -MT $@ -MF $(@:.OBJ=.DEP) -MMD
+
+%.EXE: $(OBJECTS)
+> $(CC) $^ -o $@
+
+.PHONY: ALL
+ALL: $(EXENAME).EXE
