@@ -88,7 +88,9 @@ __GVideo__Palette
 } GVideo__Palette_t;
 
 #define \
-GVIDEO__PALETTE__SIZE (sizeof(GVideo__Pixel_t) << 8)
+GVIDEO__PALETTE__SIZE                                                          \
+   (sizeof(                                                                    \
+  GVideo__Pixel_t) << 8)
 // Note: This alternative palette doesn't appear to be used.
 extern
 GVideo__Palette_t
@@ -107,7 +109,11 @@ __GVideo__SpriteLookup
 } GVideo__SpriteLookup_t;
 
 #define \
-GVIDEO__SPRITELOOKUP__SIZE 0x0100
+GVIDEO__SPRITELOOKUP__SIZE                                                     \
+  0x0100
+#define \
+GVIDEO__SPRITEKEYTBL__SIZE                                                     \
+  0x0080
 
 extern
 GVideo__SpriteLookup_t
@@ -126,7 +132,8 @@ __GVideo__Sprite
 // loaded and un-obfuscated.  Apart from that,  the game doesn't appear to make
 // use of this data in any way.
   uint32_t
-    frame__key[128];
+    frame__key[
+  GVIDEO__SPRITEKEYTBL__SIZE];
 // Note: RLE encoded payload.  To skip evaluating  the entire data  stream  the
 // above index can be used to seek to each new RLE node.
   uint8_t
@@ -150,7 +157,8 @@ GVideo__SpriteSize(
   }
 
 #define \
-  GVIDEO__SPRITES 0x1d
+  GVIDEO__SPRITES                                                              \
+  0x001d
 
 typedef struct
 __GVideo__Frame

@@ -733,62 +733,155 @@ main(
     gVideo__SpriteData,
     gVideo__SpriteData__Size);
 
-#if 0
+#ifdef \
+GVIDEO__SPRITE__TRANSFORM
+/*
+00012436 loc_12436:
+00012436                 mov     eax, [esp+n]
+0001243A                 cmp     eax, 1Dh        ; Compare Two Operands
+0001243D                 jnb     short loc_12454 ; Jump if Not Below (CF=0)
+*/
   for (
     unsigned
     n = 0x0000,
-    N = 0x001d;
+    N = GVIDEO__SPRITES;
     n < N;
   ++n)
     {
+/*
+0001243F                 mov     edx, eax
+00012441                 mov     eax, ds:gVideo__SpriteData
+00012446                 add     eax, ds:gVideo__SpriteLookup[edx*4] ; Add
+0001244D                 xor     ecx, ecx        ; Logical Exclusive OR
+0001244F                 mov     [esp+m], ecx
+00012452                 jmp     short loc_1242A ; Jump
+*/
     uint8_t *
+    const
     __gVideo__SpriteData =
       gVideo__SpriteData +
    a__gVideo__SpriteLookupGLOBAL[n].
       gVideo__SpriteOffset;
+/*
+0001242A loc_1242A:
+0001242A                 mov     esi, [esp+m]
+0001242D                 cmp     esi, 40h ; '@'  ; Compare Two Operands
+00012430                 jb      short loc_12406 ; Jump if Below (CF=1)
+00012432                 inc     [esp+n]         ; Increment by 1
+*/
   for (
     unsigned
     m = 0x0000,
-    M = 0x0040;
+    M = GVIDEO__SPRITEKEYTBL__SIZE;
     m < M;
   ++m)
     {
+/*
+00012406 loc_12406:
+00012406                 mov     edx, esi
+00012408                 mov     esi, [eax+edx*4+4]
+*/
+      // Note: Key table offsets are calculated from the base of the table.  As
+      // the table  isn't the first item,  any header data before that must  be
+      // skipped.  There isn't anything else  except dimension that that occupy
+      // 32-bit, hence the `+4'.
     const
     unsigned
-    __m = 0x7f - m;
-
-    unsigned
-    __0 = m * 4 + 4;
+    __0 =
+    m * 4 + 4;
+    uint32_t *
+    const
+      gVideo__SpriteData__0 =
+   (uint32_t *) (
+    __gVideo__SpriteData    /* eax */ + __0 /* edx*4+4 */);
     uint32_t
-  __gVideo__SpriteData__0 =
-    * (uint32_t *) (
-  __gVideo__SpriteData + __0);
+    const
+    __gVideo__SpriteData__0 /* esi */ =
+   *gVideo__SpriteData__0;
 
+      // Note: This would simply patch in  a direct  memory reference.  As this
+      // like isn't a 32-bit platform, can't obviously do that.
+/*
+0001240C                 add     esi, eax        ; Add
+*/
+
+/*
+0001240E                 mov     edx, 7Fh
+00012413                 sub     edx, [esp+m]    ; Integer Subtraction
+*/
+    const
     unsigned
-    __1 = __m * 4 + 4;
+    m__rev =
+     (M - 1) - m;
+      /* // Note: Not static enough.
+    static_assert(
+      M - 1 == 0x7f) */
+      ;
+/*
+00012416                 mov     edi, [eax+edx*4+4]
+*/
+    const
+    unsigned
+    __1 =
+    m__rev * 4 + 4;
+    uint32_t *
+    const
+      gVideo__SpriteData__1 =
+   (uint32_t *) (
+    __gVideo__SpriteData    /* eax */ + __1 /* edx*4+4 */);
+
     uint32_t
-  __gVideo__SpriteData__1 =
-    * (uint32_t *) (
-  __gVideo__SpriteData + __1);
+    const
+    __gVideo__SpriteData__1 /* edi */ =
+   *gVideo__SpriteData__1;
 
-    /*
-  printf("%08x %08x (%2u) <-> %08x %08x (%2u)\n",
-  __gVideo__SpriteData + __0,
-  __gVideo__SpriteData__0, m,
-  __gVideo__SpriteData + __1,
-  __gVideo__SpriteData__1, __m); */
+      // Note: Ditto.
+/*
+0001241A                 add     edi, eax        ; Add
+*/
+/*
+0001241C                 mov     [eax+edx*4+4], esi
+*/
+    /* // Note: Not enabled.
+  printf("%02x,%02x: "
+      "@%04x=%08x <- ",
+      n, m__rev,
+ (__1 >> 2) - 1,
+   *gVideo__SpriteData__1) */
+    ;
+ *gVideo__SpriteData__1 =
+  __gVideo__SpriteData__0
+    ;
+    /* // Note: Ditto.
+  printf(
+      "@%04x=%08x.\n",
+ (__0 >> 2) - 1,
+   *gVideo__SpriteData__1) */
+    ;
 
-    *(uint32_t *)
-  (__gVideo__SpriteData + __1) =
-      (uint32_t) ( /*
-  __gVideo__SpriteData + */
-  __gVideo__SpriteData__0);
-
-    *(uint32_t *)
-  (__gVideo__SpriteData + __0) =
-      (uint32_t) ( /*
-  __gVideo__SpriteData + */
-  __gVideo__SpriteData__1);
+/*
+00012420                 mov     edx, [esp+m]
+00012423                 mov     [eax+edx*4+4], edi
+*/
+    /* // Note: Ditto.
+  printf("%02x,%02x: "
+      "@%04x=%08x <- ",
+      n, m,
+ (__0 >> 2) - 1,
+   *gVideo__SpriteData__0) */
+    ;
+ *gVideo__SpriteData__0 =
+  __gVideo__SpriteData__1
+    ;
+    /* // Note: Ditto.
+  printf(
+      "@%04x=%08x.\n",
+ (__1 >> 2) - 1,
+   *gVideo__SpriteData__0) */
+    ;
+/*
+00012427                 inc     dword ptr [esp+m] ; Increment by 1
+*/
     }
     }
 #endif // ..
